@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Aurelia Allure</title>
+  <link rel="stylesheet" href="{{ asset('css/style.css') }}">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Lato&display=swap" rel="stylesheet">
+</head>
+<body>
+  <!-- ========== HEADER ========== -->
+  <header>
+    <div class="container topbar">
+      <div class="brand">
+       <img src="{{ asset('images/brandlogo.png') }}" alt="Aurelia Allure Logo" class="brandlogo-img">
+        <div>
+          <h1>Aurelia Allure</h1>
+          <div class="small">Inspired by you</div>
+        </div>
+      </div>
+
+      <nav>
+        <div class="search">
+          <input type="text" placeholder="Search cosmetics, skincare, jewelry...">
+        </div>
+        <button class="icon-btn">All</button>
+        <button class="icon-btn">Makeup</button>
+        <button class="icon-btn">Skincare</button>
+        <button class="icon-btn">Jewelry</button>
+
+        <!-- Cart button -->
+        <button class="icon-btn cart-btn" onclick="toggleCart()">
+          🛒
+          <span class="cart-count" id="cart-count">0</span>
+        </button>
+      </nav>
+    </div>
+  </header>
+
+  <!-- ========== HERO ========== -->
+  <section class="container hero">
+  <div class="hero-left">
+    <h2 class="hero-title">Beauty & Elegance, delivered.</h2>
+    <p class="hero-sub">
+      A curated selection of cosmetics, skincare, and fashion jewelry — crafted to inspire confidence and everyday magic.
+    </p>
+    <button class="cta">Shop Featured</button>
+  </div>
+  <div class="hero-right">
+    <img src="{{ asset('images/beauty.png') }}" alt="Hero Beauty Display" class="hero-img">
+  </div>
+</section>
+
+
+  <!-- ========== CATEGORIES ========== -->
+  <section class="container">
+    <div class="cats">
+      <div class="cat">
+        <strong>Makeup</strong>
+        <div>Lips • Eyes • Face</div>
+      </div>
+      <div class="cat">
+        <strong>Skincare</strong>
+        <div>Serums • Toners • Masks</div>
+      </div>
+      <div class="cat">
+        <strong>Fashion Jewelry</strong>
+        <div>Earrings • Necklaces</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========== FEATURED PRODUCTS ========== -->
+  <section class="container">
+    <h3 style="margin-bottom:16px;font-family:'Playfair Display',serif;">Featured products</h3>
+    <div id="product-grid" class="grid"></div>
+  </section>
+
+  <!-- ========== CART DRAWER ========== -->
+  <div class="drawer" id="cart-drawer">
+    <h3>Your Cart</h3>
+    <div id="cart-items"></div>
+  </div>
+
+  <!-- ========== FOOTER ========== -->
+ <footer>
+  <div class="container">
+    <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;">
+      
+      <div style="display:flex;align-items:center;gap:10px;">
+        <img src="{{ asset('images/brandlogo.png') }}" alt="Aurelia Allure Logo" class="footer-logo">
+        <div>
+          <strong>Aurelia Allure</strong><br>
+          <span class="small">Inspired by you</span>
+        </div>
+      </div>
+
+      <div class="small">© 2025 Aurelia Allure — All rights reserved</div>
+    </div>
+  </div>
+</footer>
+
+
+  <!-- JS -->
+  <script src="{{ asset('js/app.js') }}"></script>
+</body>
+</html>
