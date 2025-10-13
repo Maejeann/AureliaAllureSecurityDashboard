@@ -1,44 +1,9 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Aurelia Allure</title>
-  <link rel="stylesheet" href="{{ asset('css/style.css') }}">
-  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Lato&display=swap" rel="stylesheet">
-</head>
-<body>
-  <!-- ========== HEADER ========== -->
-  <header>
-    <div class="container topbar">
-      <div class="brand">
-       <img src="{{ asset('images/brandlogo.png') }}" alt="Aurelia Allure Logo" class="brandlogo-img">
-        <div>
-          <h1>Aurelia Allure</h1>
-          <div class="small">Inspired by you</div>
-        </div>
-      </div>
+{% extends 'base.html.twig' %}
 
-      <nav>
-        <div class="search">
-          <input type="text" placeholder="Search cosmetics, skincare, jewelry...">
-        </div>
-        <button class="icon-btn">All</button>
-        <button class="icon-btn">Makeup</button>
-        <button class="icon-btn">Skincare</button>
-        <button class="icon-btn">Jewelry</button>
+{% block title %}Home - Aurelia Allure{% endblock %}
 
-        <!-- Cart button -->
-        <button class="icon-btn cart-btn" onclick="toggleCart()">
-          🛒
-          <span class="cart-count" id="cart-count">0</span>
-        </button>
-      </nav>
-    </div>
-  </header>
-
-  <!-- ========== HERO ========== -->
-  <section class="container hero">
+{% block content %}
+<section class="container hero">
   <div class="hero-left">
     <h2 class="hero-title">Beauty & Elegance, delivered.</h2>
     <p class="hero-sub">
@@ -51,57 +16,152 @@
   </div>
 </section>
 
+<section class="container">
+  <h3 style="font-family:'Playfair Display',serif;">Featured Products</h3>
 
-  <!-- ========== CATEGORIES ========== -->
-  <section class="container">
-    <div class="cats">
-      <div class="cat">
-        <strong>Makeup</strong>
-        <div>Lips • Eyes • Face</div>
-      </div>
-      <div class="cat">
-        <strong>Skincare</strong>
-        <div>Serums • Toners • Masks</div>
-      </div>
-      <div class="cat">
-        <strong>Fashion Jewelry</strong>
-        <div>Earrings • Necklaces</div>
-      </div>
-    </div>
-  </section>
+  {% if products is not empty %}
+    <div class="products-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:20px;margin-top:20px;">
+      {% for product in products %}
+        <div class="product-card">
+          <img src="{{ asset(product.image) }}" alt="{{ product.name }}">
+          <h4>{{ product.name }}</h4>
+          <p>{{ product.description }}</p>
+          <p>₱{{ product.price }}</p>
+          {% if product.category %}
+            <p><strong>Category:</strong> {{ product.category.name }}</p>
+          {% endif %}
 
-  <!-- ========== FEATURED PRODUCTS ========== -->
-  <section class="container">
-    <h3 style="margin-bottom:16px;font-family:'Playfair Display',serif;">Featured products</h3>
-    <div id="product-grid" class="grid"></div>
-  </section>
+          {% if product.stocks|length > 0 %}
+            {% set latestStock = product.stocks|last %}
+            <p><strong>Stock:</strong> {{ latestStock.quantity }}</p>
+          {% else %}
+            <p><strong>Stock:</strong> 0</p>
+          {% endif %}
 
-  <!-- ========== CART DRAWER ========== -->
-  <div class="drawer" id="cart-drawer">
-    <h3>Your Cart</h3>
-    <div id="cart-items"></div>
-  </div>
-
-  <!-- ========== FOOTER ========== -->
- <footer>
-  <div class="container">
-    <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;">
-      
-      <div style="display:flex;align-items:center;gap:10px;">
-        <img src="{{ asset('images/brandlogo.png') }}" alt="Aurelia Allure Logo" class="footer-logo">
-        <div>
-          <strong>Aurelia Allure</strong><br>
-          <span class="small">Inspired by you</span>
+          <div class="product-actions">
+            <a href="{{ path('product_edit', {'id': product.id}) }}" class="btn-aurelia btn-edit">Edit</a>
+            <form method="POST" action="{{ path('product_delete', {'id': product.id}) }}" style="display:inline;">
+              <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ product.id) }}">
+              <button type="submit" class="btn-aurelia btn-delete" onclick="return confirm('Are you sure you want to delete this product?')">Delete</button>
+            </form>
+          </div>
         </div>
-      </div>
-
-      <div class="small">© 2025 Aurelia Allure — All rights reserved</div>
+      {% endfor %}
     </div>
+  {% else %}
+    <p style="margin-top:20px;">No products found.</p>
+  {% endif %}
+</section>
+
+<!-- Add Product Modal -->
+<div id="modal-backdrop" class="modal-backdrop" style="display:none;">
+  <div class="modal-card">
+    <button class="modal-close" id="modal-close">&times;</button>
+    <h3>Add Product</h3>
+
+    <form id="product-form" method="POST" enctype="multipart/form-data" action="{{ path('product_add') }}">
+      <input type="hidden" name="_token" value="{{ csrf_token('product_form') }}">
+      <label>Name:</label>
+      <input type="text" name="name" required>
+      <label>Description:</label>
+      <textarea name="description" rows="4"></textarea>
+      <label>Price:</label>
+      <input type="number" name="price" step="0.01" min="0" required>
+      <label>Image File:</label>
+      <input type="file" name="image" accept="image/*">
+      <div style="margin-top:12px;">
+        <button type="submit" class="btn">Save</button>
+      </div>
+    </form>
   </div>
-</footer>
+</div>
 
+<!-- Category Modal -->
+<div id="modal-category-backdrop" class="modal-backdrop" style="display:none;">
+  <div class="modal-card">
+    <button class="modal-close" id="modal-category-close">&times;</button>
+    <h3>Assign Category</h3>
 
-  <!-- JS -->
-  <script src="{{ asset('js/app.js') }}"></script>
-</body>
-</html>
+    <form id="category-form" method="POST" action="{{ path('category_add') }}">
+      <input type="hidden" name="_token" value="{{ csrf_token('category_form') }}">
+      <label>Product:</label>
+      <select name="product" required>
+        <option value="">-- Select Product --</option>
+        {% for product in products %}
+          <option value="{{ product.id }}">{{ product.name }}</option>
+        {% endfor %}
+      </select>
+
+      <label>Category:</label>
+      <select name="category" required>
+        <option value="">-- Select Category --</option>
+        <option value="Makeup">Makeup</option>
+        <option value="Skincare">Skincare</option>
+        <option value="Jewelry">Jewelry</option>
+      </select>
+
+      <div style="margin-top:12px;">
+        <button type="submit" class="btn">Save</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Stock Modal -->
+<div id="modal-stock-backdrop" class="modal-backdrop" style="display:none;">
+  <div class="modal-card">
+    <button class="modal-close" id="modal-stock-close">&times;</button>
+    <h3>Update Stock</h3>
+
+    <form id="stock-form" method="POST" action="{{ path('stock_add') }}">
+      <input type="hidden" name="_token" value="{{ csrf_token('stock_form') }}">
+      <label>Product:</label>
+      <select name="product" required>
+        {% for product in products %}
+          <option value="{{ product.id }}">{{ product.name }}</option>
+        {% endfor %}
+      </select>
+
+      <label>Quantity:</label>
+      <input type="number" name="quantity" min="0" required>
+
+      <div style="margin-top:12px;">
+        <button type="submit" class="btn">Save</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+// Category modal
+(function () {
+    const categoryLink = document.getElementById('open-category');
+    const categoryBackdrop = document.getElementById('modal-category-backdrop');
+    const categoryCloseBtn = document.getElementById('modal-category-close');
+
+    function openModal(e) { e?.preventDefault(); categoryBackdrop.style.display = 'flex'; requestAnimationFrame(() => categoryBackdrop.classList.add('visible')); }
+    function closeModal(e) { e?.preventDefault(); categoryBackdrop.classList.remove('visible'); setTimeout(() => categoryBackdrop.style.display = 'none', 220); }
+
+    if (categoryLink) categoryLink.addEventListener('click', openModal);
+    if (categoryCloseBtn) categoryCloseBtn.addEventListener('click', closeModal);
+    if (categoryBackdrop) categoryBackdrop.addEventListener('click', e => { if (e.target === categoryBackdrop) closeModal(); });
+    document.addEventListener('keydown', e => { if (e.key === 'Escape' && categoryBackdrop.classList.contains('visible')) closeModal(); });
+})();
+
+// Stock modal
+(function () {
+    const stockLink = document.getElementById('open-stock');
+    const stockBackdrop = document.getElementById('modal-stock-backdrop');
+    const stockCloseBtn = document.getElementById('modal-stock-close');
+
+    function openModal(e) { e?.preventDefault(); stockBackdrop.style.display = 'flex'; requestAnimationFrame(() => stockBackdrop.classList.add('visible')); }
+    function closeModal(e) { e?.preventDefault(); stockBackdrop.classList.remove('visible'); setTimeout(() => stockBackdrop.style.display = 'none', 220); }
+
+    if (stockLink) stockLink.addEventListener('click', openModal);
+    if (stockCloseBtn) stockCloseBtn.addEventListener('click', closeModal);
+    if (stockBackdrop) stockBackdrop.addEventListener('click', e => { if (e.target === stockBackdrop) closeModal(); });
+    document.addEventListener('keydown', e => { if (e.key === 'Escape' && stockBackdrop.classList.contains('visible')) closeModal(); });
+})();
+</script>
+
+{% endblock %}

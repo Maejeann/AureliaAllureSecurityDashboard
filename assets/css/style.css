@@ -1,0 +1,458 @@
+/* ---------- Global Reset ---------- */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: 'Lato', sans-serif;
+  color: #333;
+  background: #fff;
+  line-height: 1.6;
+}
+
+.container {
+  width: 90%;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+/* ---------- Header ---------- */
+header {
+  background: #fff;
+  border-bottom: 1px solid #eee;
+  padding: 12px 0;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.topbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.brandlogo-img {
+  width: 45px;
+  height: 45px;
+}
+
+.brand h1 {
+  font-family: 'Playfair Display', serif;
+  font-size: 20px;
+  color: #4a2c63;
+}
+
+.brand .small {
+  font-size: 12px;
+  color: #777;
+}
+
+/* ---------- Nav ---------- */
+nav {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.search input {
+  padding: 6px 10px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  width: 200px;
+}
+
+.icon-btn {
+  background: none;
+  border: none;
+  padding: 6px 12px;
+  font-size: 14px;
+  cursor: pointer;
+  color: #4a2c63;
+}
+
+.icon-btn:hover {
+  background: #f8f0fb;
+  border-radius: 8px;
+}
+
+.cart-btn {
+  position: relative;
+}
+
+.cart-count {
+  background: #d65fa3;
+  color: #fff;
+  font-size: 12px;
+  padding: 1px 6px;
+  border-radius: 10px;
+  margin-left: 2px;
+}
+
+/* ---------- Hero Section ---------- */
+.hero {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  padding: 60px 0;
+  gap: 40px;
+}
+
+.hero-left {
+  flex: 1;
+  min-width: 320px;
+}
+
+.hero-right {
+  flex: 1;
+  text-align: right;
+  min-width: 280px;
+}
+
+.hero-img {
+  width: 85%;          /* reduce image size */
+  max-width: 500px;     /* keeps it from growing too large on wide screens */
+  height: auto;
+  border-radius: 12px;  /* soft edges like in your screenshot */
+  object-fit: cover;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+}
+
+.hero-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 2.5rem;
+  color: #222;
+  margin-bottom: 10px;
+}
+
+.hero-sub {
+  color: #555;
+  font-size: 1.1rem;
+  margin-bottom: 20px;
+  max-width: 500px;
+}
+
+.cta {
+  background: #f4b2c0;
+  color: #000;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 8px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.cta:hover {
+  background: #e9a2b3;
+}
+
+
+/* ---------- Featured Section ---------- */
+section h3 {
+  margin: 40px 0 10px;
+  font-size: 1.5rem;
+}
+
+/* ---------- Footer ---------- */
+footer {
+  background: #fff;
+  border-top: 1px solid #eee;
+  padding: 20px 0;
+  margin-top: 60px;
+}
+
+.footer-logo {
+  width: 40px;
+  height: 40px;
+}
+
+footer .small {
+  font-size: 13px;
+  color: #666;
+}
+
+
+/* ---------- Sidebar Overlay ---------- */
+.sidebar-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 100vh;
+  width: 280px;
+  background-color: #fff;
+  box-shadow: 4px 0 12px rgba(0, 0, 0, 0.1);
+  padding: 20px;
+  transform: translateX(-100%);
+  transition: transform 0.3s ease-in-out;
+  z-index: 9999;
+  border-top-right-radius: 20px;
+  border-bottom-right-radius: 20px;
+}
+
+.sidebar-overlay.open {
+  transform: translateX(0);
+}
+
+.sidebar-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.sidebar-header h2 {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.4rem;
+  color: #ff69b4;
+}
+
+#close-sidebar {
+  background: none;
+  border: none;
+  font-size: 1.2rem;
+  cursor: pointer;
+  color: #555;
+}
+
+.sidebar-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.sidebar-link {
+  text-decoration: none;
+  color: #4a2c63;
+  font-weight: 500;
+  padding: 10px 14px;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+  font-size: 0.95rem;
+}
+
+.sidebar-link:hover {
+  background: #f4b2c0;
+  color: #fff;
+}
+
+/* ---------- Clickable Logo ---------- */
+.clickable-logo {
+  cursor: pointer;
+  transition: transform 0.2s ease;
+}
+
+.clickable-logo:hover {
+  transform: scale(1.05);
+}
+
+
+/* ============================= */
+/* Aurelia Allure – Minimal Add Product Modal */
+/* ============================= */
+
+.modal-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(255, 255, 255, 0.1); /* nearly transparent */
+  backdrop-filter: blur(8px); /* soft blur effect */
+  display: none;
+  justify-content: center;
+  align-items: center;
+  z-index: 999;
+}
+
+.modal-card {
+  background: #fff;
+  padding: 32px 36px;
+  border-radius: 18px;
+  width: 420px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+  font-family: 'Lato', sans-serif;
+  color: #333;
+  position: relative;
+  animation: fadeInUp 0.25s ease-out;
+}
+
+.modal-card h3 {
+  font-family: 'Playfair Display', serif;
+  color: #f4b2c0; /* Aurelia pink */
+  margin-bottom: 20px;
+  text-align: center;
+  font-size: 1.6rem;
+}
+
+.modal-card label {
+  font-weight: 600;
+  color: #555;
+  display: block;
+  margin-top: 10px;
+  margin-bottom: 4px;
+}
+
+.modal-card input,
+.modal-card textarea {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1.5px solid #eee;
+  border-radius: 8px;
+  outline: none;
+  font-family: 'Lato', sans-serif;
+  font-size: 0.95rem;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  resize: none;
+}
+
+.modal-card input:focus,
+.modal-card textarea:focus {
+  border-color: #f4b2c0;
+  box-shadow: 0 0 6px rgba(244, 178, 192, 0.3);
+}
+
+.modal-card .btn {
+  background: #f4b2c0;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 10px 16px;
+  cursor: pointer;
+  transition: background 0.2s ease;
+  font-weight: 600;
+  width: 100%;
+  margin-top: 14px;
+}
+
+.modal-card .btn:hover {
+  background: #f7c5cf;
+}
+
+.modal-card .close {
+  position: absolute;
+  top: 10px;
+  right: 14px;
+  font-size: 20px;
+  cursor: pointer;
+  color: #999;
+  background: none;
+  border: none;
+  font-weight: bold;
+  transition: color 0.2s ease;
+}
+
+.modal-card .close:hover {
+  color: #f4b2c0;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+
+/* =========================
+   Product Card Styling
+   ========================= */
+.product-card {
+    border: 1px solid #eee;
+    padding: 16px;
+    border-radius: 12px;
+    text-align: center;
+    position: relative;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.product-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+.product-card img {
+    width: 100%;
+    height: 200px;
+    object-fit: cover;
+    border-radius: 8px;
+}
+
+.product-card h4 {
+    margin-top: 12px;
+    font-family: 'Playfair Display', serif;
+    color: #333;
+    font-weight: 700;
+}
+
+.product-card p {
+    font-size: 0.9rem;
+    color: #555;
+    margin: 6px 0;
+}
+
+.product-card .product-actions {
+    margin-top: 12px;
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+}
+
+/* =========================
+   Aurelia-themed Buttons
+   ========================= */
+.btn-aurelia {
+    padding: 8px 16px;
+    width: 100px;              /* fixed width to match buttons */
+    font-weight: 600;
+    border-radius: 8px;
+    text-decoration: none;
+    cursor: pointer;
+    transition: background 0.3s, transform 0.2s;
+    display: inline-block;
+    text-align: center;
+}
+
+/* Edit Button */
+.btn-edit {
+    background-color: #f4b2c0; /* soft pink */
+    color: white;
+    border: none;
+     padding: 8px 16px;  
+    width: 90px;       
+    height: 30px;       
+    border-radius: 8px; 
+}
+
+.btn-edit:hover {
+    background-color: #e897a5; /* slightly darker pink on hover */
+    transform: translateY(-2px); /* subtle lift effect */
+}
+
+/* Delete Button */
+.btn-delete {
+    background-color: #ff6b6b; /* soft red */
+    color: white;
+    border: none;
+    width: 90px;
+}
+
+.btn-delete:hover {
+    background-color: #ff4c4c; /* darker red on hover */
+    transform: translateY(-2px); /* subtle lift effect */
+}
+

@@ -1,17 +1,93 @@
 <!DOCTYPE html>
-<html>
-    <head>
-        <meta charset="UTF-8">
-        <title>{% block title %}Welcome!{% endblock %}</title>
-        <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 128 128%22><text y=%221.2em%22 font-size=%2296%22>⚫️</text><text y=%221.3em%22 x=%220.2em%22 font-size=%2276%22 fill=%22%23fff%22>sf</text></svg>">
-        {% block stylesheets %}
-        {% endblock %}
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}Aurelia Allure{% endblock %}</title>
+  <link rel="stylesheet" href="{{ asset('css/style.css') }}">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Lato&display=swap" rel="stylesheet">
+  {% block head %}{% endblock %}
+</head>
 
-        {% block javascripts %}
-            {% block importmap %}{{ importmap('app') }}{% endblock %}
-        {% endblock %}
-    </head>
-    <body>
-        {% block body %}{% endblock %}
-    </body>
+<body>
+  <!-- HEADER -->
+  <header>
+    <div class="container topbar">
+      <div class="brand" id="logo-toggle">
+        <img src="{{ asset('images/brandlogo.png') }}" alt="Aurelia Allure Logo" class="brandlogo-img clickable-logo">
+        <div>
+          <h1>Aurelia Allure</h1>
+          <div class="small">Inspired by you</div>
+        </div>
+      </div>
+
+      <nav>
+        <div class="search">
+          <input type="text" placeholder="Search cosmetics, skincare, jewelry...">
+        </div>
+        <button class="icon-btn">All</button>
+        <button class="icon-btn">Makeup</button>
+        <button class="icon-btn">Skincare</button>
+        <button class="icon-btn">Jewelry</button>
+      </nav>
+    </div>
+  </header>
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar-overlay" id="sidebar">
+    <div class="sidebar-header">
+      <h2>Admin Panel</h2>
+      <button id="close-sidebar">✕</button>
+    </div>
+    <nav class="sidebar-nav">
+      <a href="#" id="open-add-product" class="sidebar-link">➕ Add Products</a>
+      <a href="#" id="open-category" class="sidebar-link">🏷️ Categories</a>
+      <a href="#" id="open-stock" class="sidebar-link">📦 Stock</a>
+    </nav>
+  </aside>
+
+  <!-- MAIN CONTENT -->
+  <main>
+    {% block content %}{% endblock %}
+  </main>
+
+  <!-- FOOTER -->
+  <footer>
+    <div class="container" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;">
+      <div style="display:flex;align-items:center;gap:10px;">
+        <img src="{{ asset('images/brandlogo.png') }}" alt="Aurelia Allure Logo" class="footer-logo">
+        <div><strong>Aurelia Allure</strong><br><span class="small">Inspired by you</span></div>
+      </div>
+      <div class="small">© 2025 Aurelia Allure — All rights reserved</div>
+    </div>
+  </footer>
+
+  <!-- JS -->
+  <script>
+    // Sidebar toggle
+    const logoToggle = document.getElementById('logo-toggle');
+    const sidebar = document.getElementById('sidebar');
+    const closeSidebar = document.getElementById('close-sidebar');
+    logoToggle.addEventListener('click', () => sidebar.classList.add('open'));
+    closeSidebar.addEventListener('click', () => sidebar.classList.remove('open'));
+    window.addEventListener('click', (e) => { if (e.target === sidebar) sidebar.classList.remove('open'); });
+
+    // Add Product Modal
+    (function () {
+      const openBtn = document.getElementById('open-add-product');
+      const backdrop = document.getElementById('modal-backdrop');
+      const closeBtn = document.getElementById('modal-close');
+
+      function openModal(e) { if (e) e.preventDefault(); if (!backdrop) return; backdrop.style.display = 'flex'; requestAnimationFrame(() => backdrop.classList.add('visible')); }
+      function closeModal(e) { if (e) e.preventDefault(); if (!backdrop) return; backdrop.classList.remove('visible'); setTimeout(() => backdrop.style.display = 'none', 220); }
+
+      if (openBtn) openBtn.addEventListener('click', openModal);
+      if (closeBtn) closeBtn.addEventListener('click', closeModal);
+      if (backdrop) backdrop.addEventListener('click', e => { if (e.target === backdrop) closeModal(); });
+      document.addEventListener('keydown', e => { if (e.key === 'Escape' && backdrop.classList.contains('visible')) closeModal(); });
+    })();
+  </script>
+
+  {% block javascripts %}{% endblock %}
+</body>
 </html>

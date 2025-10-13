@@ -1,18 +1,44 @@
+version: '3.8'
 
 services:
-###> doctrine/doctrine-bundle ###
-  database:
+  php:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: aurelia-php
+    volumes:
+      - .:/var/www/html
+      - ./public/uploads:/var/www/html/public/uploads   # ✅ added line
     ports:
-      - "5432"
-###< doctrine/doctrine-bundle ###
+      - "8000:8000"
+    depends_on:
+      - mysql
 
-###> symfony/mailer ###
-  mailer:
-    image: axllent/mailpit
-    ports:
-      - "1025"
-      - "8025"
+  mysql:
+    image: mysql:8.0
+    container_name: aurelia-db
+    restart: unless-stopped
     environment:
-      MP_SMTP_AUTH_ACCEPT_ANY: 1
-      MP_SMTP_AUTH_ALLOW_INSECURE: 1
-###< symfony/mailer ###
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: aurelia_db
+      MYSQL_USER: aurelia
+      MYSQL_PASSWORD: aurelia
+    ports:
+      - "3306:3306"
+    volumes:
+      - db_data:/var/lib/mysql
+
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    container_name: aurelia-phpmyadmin
+    restart: unless-stopped
+    environment:
+      PMA_HOST: mysql
+      MYSQL_ROOT_PASSWORD: root
+    ports:
+      - "8080:80"
+    depends_on:
+      - mysql
+
+volumes:
+  db_data:
