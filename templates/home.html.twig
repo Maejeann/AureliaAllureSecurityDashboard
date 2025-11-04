@@ -9,7 +9,7 @@
     <p class="hero-sub">
       A curated selection of cosmetics, skincare, and fashion jewelry — crafted to inspire confidence and everyday magic.
     </p>
-    <button class="cta">Shop Featured</button>
+    <a href="{{ path('admin_dashboard') }}" class="cta">Show Dashboard</a>
   </div>
   <div class="hero-right">
     <img src="{{ asset('images/beauty.png') }}" alt="Hero Beauty Display" class="hero-img">
@@ -27,24 +27,6 @@
           <h4>{{ product.name }}</h4>
           <p>{{ product.description }}</p>
           <p>₱{{ product.price }}</p>
-          {% if product.category %}
-            <p><strong>Category:</strong> {{ product.category.name }}</p>
-          {% endif %}
-
-          {% if product.stocks|length > 0 %}
-            {% set latestStock = product.stocks|last %}
-            <p><strong>Stock:</strong> {{ latestStock.quantity }}</p>
-          {% else %}
-            <p><strong>Stock:</strong> 0</p>
-          {% endif %}
-
-          <div class="product-actions">
-            <a href="{{ path('product_edit', {'id': product.id}) }}" class="btn-aurelia btn-edit">Edit</a>
-            <form method="POST" action="{{ path('product_delete', {'id': product.id}) }}" style="display:inline;">
-              <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ product.id) }}">
-              <button type="submit" class="btn-aurelia btn-delete" onclick="return confirm('Are you sure you want to delete this product?')">Delete</button>
-            </form>
-          </div>
         </div>
       {% endfor %}
     </div>
@@ -52,116 +34,4 @@
     <p style="margin-top:20px;">No products found.</p>
   {% endif %}
 </section>
-
-<!-- Add Product Modal -->
-<div id="modal-backdrop" class="modal-backdrop" style="display:none;">
-  <div class="modal-card">
-    <button class="modal-close" id="modal-close">&times;</button>
-    <h3>Add Product</h3>
-
-    <form id="product-form" method="POST" enctype="multipart/form-data" action="{{ path('product_add') }}">
-      <input type="hidden" name="_token" value="{{ csrf_token('product_form') }}">
-      <label>Name:</label>
-      <input type="text" name="name" required>
-      <label>Description:</label>
-      <textarea name="description" rows="4"></textarea>
-      <label>Price:</label>
-      <input type="number" name="price" step="0.01" min="0" required>
-      <label>Image File:</label>
-      <input type="file" name="image" accept="image/*">
-      <div style="margin-top:12px;">
-        <button type="submit" class="btn">Save</button>
-      </div>
-    </form>
-  </div>
-</div>
-
-<!-- Category Modal -->
-<div id="modal-category-backdrop" class="modal-backdrop" style="display:none;">
-  <div class="modal-card">
-    <button class="modal-close" id="modal-category-close">&times;</button>
-    <h3>Assign Category</h3>
-
-    <form id="category-form" method="POST" action="{{ path('category_add') }}">
-      <input type="hidden" name="_token" value="{{ csrf_token('category_form') }}">
-      <label>Product:</label>
-      <select name="product" required>
-        <option value="">-- Select Product --</option>
-        {% for product in products %}
-          <option value="{{ product.id }}">{{ product.name }}</option>
-        {% endfor %}
-      </select>
-
-      <label>Category:</label>
-      <select name="category" required>
-        <option value="">-- Select Category --</option>
-        <option value="Makeup">Makeup</option>
-        <option value="Skincare">Skincare</option>
-        <option value="Jewelry">Jewelry</option>
-      </select>
-
-      <div style="margin-top:12px;">
-        <button type="submit" class="btn">Save</button>
-      </div>
-    </form>
-  </div>
-</div>
-
-<!-- Stock Modal -->
-<div id="modal-stock-backdrop" class="modal-backdrop" style="display:none;">
-  <div class="modal-card">
-    <button class="modal-close" id="modal-stock-close">&times;</button>
-    <h3>Update Stock</h3>
-
-    <form id="stock-form" method="POST" action="{{ path('stock_add') }}">
-      <input type="hidden" name="_token" value="{{ csrf_token('stock_form') }}">
-      <label>Product:</label>
-      <select name="product" required>
-        {% for product in products %}
-          <option value="{{ product.id }}">{{ product.name }}</option>
-        {% endfor %}
-      </select>
-
-      <label>Quantity:</label>
-      <input type="number" name="quantity" min="0" required>
-
-      <div style="margin-top:12px;">
-        <button type="submit" class="btn">Save</button>
-      </div>
-    </form>
-  </div>
-</div>
-
-<script>
-// Category modal
-(function () {
-    const categoryLink = document.getElementById('open-category');
-    const categoryBackdrop = document.getElementById('modal-category-backdrop');
-    const categoryCloseBtn = document.getElementById('modal-category-close');
-
-    function openModal(e) { e?.preventDefault(); categoryBackdrop.style.display = 'flex'; requestAnimationFrame(() => categoryBackdrop.classList.add('visible')); }
-    function closeModal(e) { e?.preventDefault(); categoryBackdrop.classList.remove('visible'); setTimeout(() => categoryBackdrop.style.display = 'none', 220); }
-
-    if (categoryLink) categoryLink.addEventListener('click', openModal);
-    if (categoryCloseBtn) categoryCloseBtn.addEventListener('click', closeModal);
-    if (categoryBackdrop) categoryBackdrop.addEventListener('click', e => { if (e.target === categoryBackdrop) closeModal(); });
-    document.addEventListener('keydown', e => { if (e.key === 'Escape' && categoryBackdrop.classList.contains('visible')) closeModal(); });
-})();
-
-// Stock modal
-(function () {
-    const stockLink = document.getElementById('open-stock');
-    const stockBackdrop = document.getElementById('modal-stock-backdrop');
-    const stockCloseBtn = document.getElementById('modal-stock-close');
-
-    function openModal(e) { e?.preventDefault(); stockBackdrop.style.display = 'flex'; requestAnimationFrame(() => stockBackdrop.classList.add('visible')); }
-    function closeModal(e) { e?.preventDefault(); stockBackdrop.classList.remove('visible'); setTimeout(() => stockBackdrop.style.display = 'none', 220); }
-
-    if (stockLink) stockLink.addEventListener('click', openModal);
-    if (stockCloseBtn) stockCloseBtn.addEventListener('click', closeModal);
-    if (stockBackdrop) stockBackdrop.addEventListener('click', e => { if (e.target === stockBackdrop) closeModal(); });
-    document.addEventListener('keydown', e => { if (e.key === 'Escape' && stockBackdrop.classList.contains('visible')) closeModal(); });
-})();
-</script>
-
 {% endblock %}

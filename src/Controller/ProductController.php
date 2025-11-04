@@ -12,6 +12,21 @@ use Symfony\Component\String\Slugger\SluggerInterface;
 
 class ProductController extends AbstractController
 {
+
+    
+
+      // =======================
+    // PRODUCT LIST PAGE (GET)
+    // =======================
+    #[Route('/admin/products', name: 'admin_products', methods: ['GET'])]
+    public function list(EntityManagerInterface $em): Response
+    {
+        $products = $em->getRepository(Product::class)->findAll();
+        return $this->render('admin/products.html.twig', [
+            'products' => $products
+        ]);
+    }
+
     // =======================
     // CREATE / ADD PRODUCT
     // =======================

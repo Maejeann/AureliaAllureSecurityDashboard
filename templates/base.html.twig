@@ -39,11 +39,16 @@
       <h2>Admin Panel</h2>
       <button id="close-sidebar">✕</button>
     </div>
-    <nav class="sidebar-nav">
-      <a href="#" id="open-add-product" class="sidebar-link">➕ Add Products</a>
-      <a href="#" id="open-category" class="sidebar-link">🏷️ Categories</a>
-      <a href="#" id="open-stock" class="sidebar-link">📦 Stock</a>
-    </nav>
+  <nav class="sidebar-nav">
+  <a href="{{ path('admin_dashboard') }}" class="sidebar-link">Dashboard</a>
+  <a href="{{ path('admin_products') }}" class="sidebar-link">Products</a>
+  <a href="{{ path('admin_categories') }}" class="sidebar-link">Categories</a>
+  <a href="{{ path('admin_stocks') }}" class="sidebar-link">Stock</a>
+  {#<a href="{{ path('admin_home') }}" class="sidebar-link">Home</a>#}
+</nav>
+
+
+
   </aside>
 
   <!-- MAIN CONTENT -->

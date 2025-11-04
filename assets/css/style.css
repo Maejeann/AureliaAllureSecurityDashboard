@@ -456,3 +456,8 @@ footer .small {
     transform: translateY(-2px); /* subtle lift effect */
 }
 
+.cta {
+  text-decoration: none;
+}
+
+

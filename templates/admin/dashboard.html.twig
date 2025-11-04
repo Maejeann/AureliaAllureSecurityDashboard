@@ -1,0 +1,299 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Aurelia Allure Dashboard{% endblock %}
+
+{% block content %}
+<div class="dashboard-main">
+  <!-- MAIN DASHBOARD CONTENT -->
+  <section class="dashboard-wrapper py-4">
+    <div class="container-fluid">
+
+      <!-- TOP STAT CARDS (side by side) -->
+      <div class="stat-row d-flex gap-4 mb-4">
+        <div class="stat-card stat-purple d-flex align-items-center flex-grow-1">
+          <div class="icon purple"><i class="fas fa-peso-sign"></i></div>
+          <div>
+            <h6>Total Sales</h6>
+            <h3>₱{{ stats.total_sales|default('120,900') }}</h3>
+            <small class="text-success"><i class="fas fa-arrow-up"></i> 10% this month</small>
+          </div>
+        </div>
+        <div class="stat-card stat-pink d-flex align-items-center flex-grow-1">
+          <div class="icon pink"><i class="fas fa-users"></i></div>
+          <div>
+            <h6>New Clients</h6>
+            <h3>{{ stats.new_clients|default('152') }}</h3>
+            <small class="text-success"><i class="fas fa-arrow-up"></i> 6% from last month</small>
+          </div>
+        </div>
+        <div class="stat-card stat-mint d-flex align-items-center flex-grow-1">
+          <div class="icon mint"><i class="fas fa-box"></i></div>
+          <div>
+            <h6>Inventory</h6>
+            <h3>{{ stats.inventory|default('326') }}</h3>
+            <small class="text-muted">Items in stock</small>
+          </div>
+        </div>
+        <div class="stat-card stat-gold d-flex align-items-center flex-grow-1">
+          <div class="icon gold"><i class="fas fa-star"></i></div>
+          <div>
+            <h6>Reviews</h6>
+            <h3>{{ stats.reviews|default('1,245') }}</h3>
+            <small class="text-success"><i class="fas fa-arrow-up"></i> 4% this week</small>
+          </div>
+        </div>
+      </div>
+
+      <!-- Add margin-top to separate from stats -->
+      <div class="products-section-wrapper mt-4">
+        <!-- TOP SELLING PRODUCTS (stylish card) -->
+        <div class="products-card">
+          <h5>Top Selling Products</h5>
+          <table class="products-table w-100">
+            <thead>
+              <tr>
+                <th style="width:40%">Product</th>
+                <th style="width:30%">Category</th>
+                <th style="width:30%">Sales</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>
+                  <div class="product-row">
+                    <div class="product-avatar" style="background:#f9a8d4;"><i class="fas fa-tint"></i></div>
+                    <span>Velvet Kiss Lip Tint</span>
+                  </div>
+                </td>
+                <td>Makeup</td>
+                <td>₱45,000</td>
+              </tr>
+              <tr>
+                <td>
+                  <div class="product-row">
+                    <div class="product-avatar" style="background:#b5ead7;"><i class="fas fa-vial"></i></div>
+                    <span>GlowHub Hydrating Serum</span>
+                  </div>
+                </td>
+                <td>Skincare</td>
+                <td>₱38,000</td>
+              </tr>
+              <tr>
+                <td>
+                  <div class="product-row">
+                    <div class="product-avatar" style="background:#ffdab9;"><i class="fas fa-gem"></i></div>
+                    <span>Pearl Gleam Necklace</span>
+                  </div>
+                </td>
+                <td>Jewelry</td>
+                <td>₱25,000</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- SIDE-BY-SIDE CHARTS (face to face layout) -->
+      <div class="charts-row d-flex gap-4 mb-4">
+        <div class="chart-card flex-grow-1 d-flex flex-column align-items-end">
+          <h5 style="align-self:flex-end;">Sales Overview</h5>
+          <canvas id="salesChart" height="120" style="max-width:96%;"></canvas>
+        </div>
+        <div class="chart-card flex-grow-1 d-flex flex-column align-items-start">
+          <h5 style="align-self:flex-start;">Category Distribution</h5>
+          <canvas id="categoryChart" height="120" style="max-width:96%;"></canvas>
+        </div>
+      </div>
+
+    </div>
+  </section>
+</div>
+
+<!-- FONT AWESOME + CHART.JS -->
+<script src="https://kit.fontawesome.com/a2e0c5a52a.js" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<!-- CHARTS -->
+<script>
+const salesCtx = document.getElementById('salesChart');
+new Chart(salesCtx, {
+  type: 'line',
+  data: {
+    labels: ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct'],
+    datasets: [{
+      label: 'Sales',
+      data: [12000,15000,17000,20000,21000,25000,23000,26000,28000,30000],
+      borderColor: '#c79dd7',
+      backgroundColor: 'rgba(199,157,215,0.18)',
+      fill: true,
+      tension: 0.4
+    }]
+  },
+  options: {
+    responsive: true,
+    plugins: { legend: { display: false } },
+    scales: { y: { beginAtZero: true } }
+  }
+});
+
+const catCtx = document.getElementById('categoryChart');
+new Chart(catCtx, {
+  type: 'doughnut',
+  data: {
+    labels: ['Makeup', 'Skincare', 'Jewelry'],
+    datasets: [{
+      data: [45, 35, 20],
+      backgroundColor: ['#f9a8d4','#b5ead7','#ffdab9'],
+      borderWidth: 0
+    }]
+  },
+  options: {
+    plugins: { legend: { position: 'bottom', labels: { color:'#555', boxWidth:12 } } },
+    cutout: '72%'
+  }
+});
+</script>
+
+<!-- STYLES -->
+<style>
+body {
+  background-color: #f3f6fb;
+}
+.dashboard-main {
+  display: flex;
+  min-height: 100vh;
+  font-family: 'Inter', 'Roboto', sans-serif;
+  justify-content: center;
+  width: 100%;
+}
+.dashboard-wrapper {
+  background-color: #f3f6fb;
+  width: 100%;
+  min-height: 100vh;
+  padding: 24px 20px;
+  padding-left: 0;
+  padding-right: 0;
+  font-family: 'Inter', 'Roboto', sans-serif;
+}
+.stat-row {
+  display: flex;
+  gap: 32px;
+  flex-wrap: nowrap;
+}
+.stat-card {
+  background: #fff;
+  border-radius: 14px;
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  min-width: 210px;
+  padding: 24px 32px;
+  box-shadow: 0 2px 8px rgba(106,27,154,0.04);
+  min-height: 100px;
+  transition: transform 0.18s, box-shadow 0.18s;
+}
+.stat-card:hover { box-shadow: 0 6px 18px rgba(106,27,154,0.12); transform: translateY(-1.5px);}
+.stat-card h6 { color: #8a8fa7; font-size: 15px; margin: 0; font-weight: 500;}
+.stat-card h3 {
+  color: #2f254d;
+  font-family: 'Playfair Display', serif;
+  margin: 0;
+  font-size: 23px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+}
+.icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 24px;
+  box-shadow: 0 1px 8px rgba(199,157,215,0.10);
+}
+.icon.purple { background: linear-gradient(135deg, #8e9ae6, #c79dd7);}
+.icon.pink { background: linear-gradient(135deg,#f9a8d4,#eeaeca);}
+.icon.mint { background: linear-gradient(135deg,#b5ead7,#b6d0e2);}
+.icon.gold { background: linear-gradient(135deg,#ffdab9,#fff6d0);}
+.charts-row { display: flex; gap: 32px;}
+.chart-card {
+  background: white;
+  border-radius: 14px;
+  padding: 24px 18px 25px 18px;
+  box-shadow: 0 2px 12px rgba(54,70,90,0.07);
+  min-width: 290px;
+  min-height: 275px;
+  width: 47%;
+  max-width: 600px;
+}
+.chart-card h5 {
+  font-family: 'Playfair Display', serif;
+  color: #6a1b9a;
+  margin-bottom: 14px;
+  font-size: 19px;
+  font-weight: 600;
+}
+.products-section-wrapper {
+  margin-top: 24px; /* add desired padding */
+}
+.products-card {
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 2px 14px rgba(54,70,90,0.09);
+  padding: 24px 20px 30px 22px;
+  margin-bottom: 20px;
+}
+.products-card h5 {
+  font-family: 'Playfair Display', serif;
+  color: #6a1b9a;
+  margin-bottom: 14px;
+  font-size: 19px;
+  font-weight: 600;
+}
+.products-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0 6px;
+}
+.products-table th {
+  font-size: 14px;
+  color: #6a1b9a;
+  letter-spacing: 0.5px;
+  font-weight: 700;
+  text-transform: uppercase;
+  background: none !important;
+  border-bottom: 2px solid #ece6fa;
+  padding-bottom: 5px;
+}
+.products-table td {
+  color: #555;
+  font-size: 15px;
+  font-weight: 500;
+  padding: 12px 8px;
+  background: #f7f3fa;
+  border-radius: 8px;
+}
+.product-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+.product-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-size: 18px;
+  box-shadow: 0 1px 6px rgba(199,157,215,0.06);
+  
+}
+
+
+</style>
+{% endblock %}

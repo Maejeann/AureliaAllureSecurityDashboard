@@ -1,0 +1,343 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Stock Management - Aurelia Allure{% endblock %}
+
+{% block content %}
+<div class="admin-products-list" style="padding:2em;">
+  <h1 style="display:flex;justify-content:space-between;align-items:center; font-family: 'Playfair Display';">
+    Stock
+  </h1>
+  
+  <!-- Search/Entries per page -->
+  <div style="margin-top: 1rem; margin-bottom: 1rem; display:flex; justify-content:space-between; align-items:center; max-width: 480px;">
+    <input type="text" id="stockSearch" placeholder="Search stock by product name..." 
+           style="width: calc(100% - 170px); padding: 8px 12px; font-size: 14px; border-radius: 6px; border: 1px solid #ccc; font-family: 'Inter', sans-serif;">
+    <label for="entriesPerPage" style="margin-left: 12px; font-family: 'Inter', sans-serif; font-weight: 600; font-size: 14px; white-space: nowrap;">Entries per page:</label>
+    <select id="entriesPerPage" style="width: 70px; padding: 6px 8px; border-radius: 6px; border: 1px solid #ccc; font-family: 'Inter', sans-serif; font-size: 14px; margin-left: 6px;">
+      <option value="5" selected>5</option>
+      <option value="10">10</option>
+      <option value="20">20</option>
+    </select>
+  </div>
+
+  <!-- Edit Stock Modal -->
+  <div id="modal-stock-backdrop" class="modal-backdrop" style="display:none;">
+    <div class="modal-card">
+      <button class="modal-close" id="modal-stock-close">&times;</button>
+      <h3 style="color:#F9A8D4;font-family:'Playfair Display',serif;font-size:2em;text-align:center;">Update Stock</h3>
+      <form id="stock-form" method="POST" action="{{ path('stock_add') }}">
+        <input type="hidden" name="_token" value="{{ csrf_token('stock_form') }}">
+        <label style="font-weight:600;">Product:</label>
+        <select name="product" required>
+          <option value="">-- Select Product --</option>
+          {% for product in products %}
+            <option value="{{ product.id }}">{{ product.name }}</option>
+          {% endfor %}
+        </select>
+        <label style="font-weight:600;">Quantity:</label>
+        <input type="number" name="quantity" min="0" required>
+        <div style="margin-top:18px;display:flex;gap:8px;">
+          <button type="submit" class="btn-aurelia">Save</button>
+          <button type="button" class="btn-aurelia btn-cancel" id="close-stock-btn">Cancel</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div class="products-table-wrapper">
+    <table class="products-table aurelia-theme-table" id="stockTable">
+      <thead>
+        <tr>
+          <th>Image</th>
+          <th>Name</th>
+          <th>Quantity</th>
+          <th>Edit</th>
+          <th>Delete</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for product in products %}
+          <tr>
+            <td>
+              <img src="{{ asset(product.image) }}" alt="{{ product.name }}" class="prod-img-thumb">
+            </td>
+            <td class="stock-name">{{ product.name }}</td>
+            <td class="stock-qty">
+              {% if product.stocks|length > 0 %}
+                {{ product.stocks|last.quantity }}
+              {% else %}
+                0
+              {% endif %}
+            </td>
+            <td>
+              <button class="btn-edit-aurelia stock-edit-btn" data-product="{{ product.id }}">Edit</button>
+            </td>
+            <td>
+              {% if product.stocks|length > 0 %}
+                <form method="POST" action="{{ path('stock_delete', {id: product.stocks|last.id}) }}" style="display:inline;">
+                  <input type="hidden" name="_token" value="{{ csrf_token('delete_stock' ~ (product.stocks|last.id)) }}">
+                  <button type="submit" class="btn-delete-aurelia" onclick="return confirm('Delete this stock entry?')">Delete</button>
+                </form>
+              {% else %}
+                <button class="btn-delete-aurelia" disabled>Delete</button>
+              {% endif %}
+            </td>
+          </tr>
+        {% else %}
+          <tr>
+            <td colspan="5" class="stock-empty"><em>No products found</em></td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Pagination Controls -->
+  <div id="paginationControls" style="margin-top: 1em; display: flex; justify-content: center; gap: 12px; font-family: 'Inter', sans-serif;">
+    <button id="prevPage" class="btn-aurelia btn-small" disabled>Previous</button>
+    <span id="pageInfo" style="font-weight: 600; align-self: center;">Page 1 of 1</span>
+    <button id="nextPage" class="btn-aurelia btn-small" disabled>Next</button>
+  </div>
+</div>
+{% endblock %}
+
+{% block javascripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  var editBtns = document.querySelectorAll('.stock-edit-btn');
+  var backdrop = document.getElementById('modal-stock-backdrop');
+  var closeBtn = document.getElementById('modal-stock-close');
+  var cancelBtn = document.getElementById('close-stock-btn');
+  var productSelect = document.querySelector('#stock-form select[name="product"]');
+
+  editBtns.forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      var prodId = btn.getAttribute('data-product');
+      backdrop.style.display = 'flex';
+      requestAnimationFrame(() => backdrop.classList.add('visible'));
+      if(productSelect) productSelect.value = prodId;
+    });
+  });
+  function closeModal(e) {
+    if (e) e.preventDefault();
+    backdrop.classList.remove('visible');
+    setTimeout(() => backdrop.style.display = 'none', 220);
+  }
+  if (closeBtn) closeBtn.addEventListener('click', closeModal);
+  if (cancelBtn) cancelBtn.addEventListener('click', closeModal);
+  if (backdrop) backdrop.addEventListener('click', function(e) {
+    if (e.target === backdrop) closeModal();
+  });
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape' && backdrop.classList.contains('visible')) closeModal();
+  });
+
+  // Table Search & Pagination Logic
+  const searchInput = document.getElementById('stockSearch');
+  const table = document.getElementById('stockTable');
+  const rowsNodeList = table.tBodies[0].rows;
+  let rows = Array.from(rowsNodeList);
+
+  let currentPage = 1;
+  let rowsPerPage = parseInt(document.getElementById('entriesPerPage').value, 10);
+  let filteredRows = rows.slice();
+
+  const prevPageBtn = document.getElementById('prevPage');
+  const nextPageBtn = document.getElementById('nextPage');
+  const pageInfo = document.getElementById('pageInfo');
+  const entriesSelect = document.getElementById('entriesPerPage');
+
+  function filterRows() {
+    const filterValue = searchInput.value.trim().toLowerCase();
+    filteredRows = rows.filter(row => {
+      const nameCell = row.querySelector('.stock-name');
+      return nameCell && nameCell.textContent.toLowerCase().includes(filterValue);
+    });
+  }
+
+  function displayRows() {
+    filterRows();
+    rows.forEach(r => r.style.display = 'none');
+    const totalPages = Math.max(Math.ceil(filteredRows.length / rowsPerPage), 1);
+    if (currentPage < 1) currentPage = 1;
+    if (currentPage > totalPages) currentPage = totalPages;
+    const startIdx = (currentPage - 1) * rowsPerPage;
+    const endIdx = startIdx + rowsPerPage;
+    for (let i = startIdx; i < endIdx && i < filteredRows.length; i++) {
+      filteredRows[i].style.display = '';
+    }
+    pageInfo.textContent = `Page ${totalPages === 0 ? 0 : currentPage} of ${totalPages}`;
+    prevPageBtn.disabled = currentPage <= 1;
+    nextPageBtn.disabled = currentPage >= totalPages || filteredRows.length === 0;
+  }
+
+  searchInput.addEventListener('input', function() {
+    currentPage = 1;
+    displayRows();
+  });
+
+  entriesSelect.addEventListener('change', function () {
+    rowsPerPage = parseInt(this.value, 10);
+    currentPage = 1;
+    displayRows();
+  });
+
+  prevPageBtn.addEventListener('click', () => {
+    if (currentPage > 1) {
+      currentPage--;
+      displayRows();
+    }
+  });
+
+  nextPageBtn.addEventListener('click', () => {
+    const totalPages = Math.ceil(filteredRows.length / rowsPerPage);
+    if (currentPage < totalPages) {
+      currentPage++;
+      displayRows();
+    }
+  });
+
+  displayRows();
+});
+</script>
+<style>
+.products-table-wrapper {
+  background: #fff;
+  border-radius: 20px;
+  box-shadow: 0 4px 26px 0 rgba(249,168,212,0.12), 0 1.5px 6px #e6c3da48;
+  padding: 28px 20px 20px 20px;
+  margin: 38px 0 0 0;
+  overflow-x:auto;
+}
+.aurelia-theme-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0 10px;
+  font-family: 'Inter', 'Lato', serif;
+  box-shadow: none;
+}
+.aurelia-theme-table thead th {
+  background: #fbeaf5;
+  color: #000;
+  font-size: 15px;
+  font-family: 'Playfair Display', serif;
+  font-weight: 700;
+  text-align: center;
+  padding:16px 6px 10px 6px;
+  border-bottom: 2px solid #f9a8d4;
+  border-radius: 12px 12px 10px 10px;
+  letter-spacing: 0.05em;
+}
+.aurelia-theme-table tbody tr {
+  background: #fff8fc;
+  box-shadow: 0 3px 14px 0 rgba(249,168,212,0.11);
+  border-radius: 18px !important;
+  transition: box-shadow 0.18s;
+}
+.aurelia-theme-table tbody tr:hover {
+  background: #fce0f0;
+  box-shadow: 0 3px 20px #e470ad33;
+}
+.aurelia-theme-table td {
+  padding: 14px 6px;
+  text-align: center;
+  background: #fff8fc;
+  border-radius: 10px;
+  font-size: 15px;
+  vertical-align: middle;
+  color: #000 !important;
+}
+.stock-name {
+  font-family: 'Lato', serif;
+  color: #000 !important;
+  font-weight: 600;
+  font-size: 1.08em;
+  letter-spacing: 0.01em;
+}
+.stock-qty {
+  color: #000 !important;
+  font-size: 15px;
+  font-weight: 600;
+}
+.stock-empty {
+  color:#ccc;
+  text-align:center;
+  padding:24px 4px;
+  font-size:16px;
+}
+.btn-aurelia {
+  background: linear-gradient(90deg, #F9A8D4 80%, #eec6d7 100%);
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  font-family: 'Playfair Display', serif;
+  font-size: 15px;
+  font-weight: 600;
+  padding: 7px 22px;
+  box-shadow: 0 2px 8px rgba(249,168,212,0.12);
+  letter-spacing: 0.02rem;
+  transition: background 0.16s, box-shadow 0.18s;
+  outline: none;
+  margin-right: 7px;
+  margin-bottom: 2px;
+  cursor: pointer;
+}
+.btn-small {
+  font-size: 15px !important;
+  padding: 6px 18px !important;
+}
+.btn-aurelia:hover, .btn-aurelia:focus {
+  background: linear-gradient(90deg, #db6ea6 80%, #eec6d7 100%);
+  box-shadow: 0 6px 20px rgba(199,157,215,0.13);
+  color: #fff;
+}
+.btn-cancel {
+  background: #ffe4ef !important;
+  color: #ea4f8b !important;
+}
+.btn-edit-aurelia {
+  background: #f9a8d4;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  font-family: 'Inter', sans-serif;
+  font-weight: 600;
+  padding: 7px 18px;
+  font-size: 15px;
+  text-decoration: none !important;
+  transition: background .12s, color .12s;
+  margin-bottom:2px;
+  display:inline-block;
+}
+.btn-edit-aurelia:hover { background: #ffcee7; color: #c62777;}
+.btn-delete-aurelia {
+  background: #ffcad4;
+  color: #c62862;
+  border: none;
+  border-radius: 6px;
+  font-family: 'Inter', sans-serif;
+  font-weight: 600;
+  padding: 7px 18px;
+  font-size: 15px;
+  transition: background .13s, color .13s;
+  text-decoration: none !important;
+  display:inline-block;
+}
+.btn-delete-aurelia:hover { background: #e57373; color: #fff; }
+.btn-delete-aurelia:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+.prod-img-thumb {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  object-fit: cover;
+  box-shadow: 0 2px 8px #f9a8d443;
+  border: 2px solid #fde2ee;
+  background: #fff6fb;
+  display: block;
+  margin: 0 auto;
+}
+</style>
+{% endblock %}
